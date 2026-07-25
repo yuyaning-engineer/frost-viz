@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>极夜将启 · Frostlight — Ice Queen Visualizer</title>
+  <meta name="description" content="冰雪女王音乐可视化：放一首歌，看极光流动、冰晶绽放、霜冻蔓延、暖光破夜。An Elsa-spirit audio-visual experience." />
+  <meta property="og:title" content="极夜将启 · Frostlight" />
+  <meta property="og:description" content="放一首歌，让声音点亮冰雪女王的星夜。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9D%84%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+  <script type="module" crossorigin src="./assets/index-DAB_mYTk.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-D8dx_9P6.css">
+</head>
+<body>
+  <canvas id="stage"></canvas>
+
+  <!-- Top-left brand -->
+  <header class="brand">
+    <div class="logo">Frost<span>light</span></div>
+    <div class="tag">Generative Audio-Visual System</div>
+  </header>
+
+  <!-- Rotating winter quote (Elsa spirit — original / not the film's lyrics) -->
+  <section class="quote" id="quote">
+    <p class="zh" id="q-zh">放手，不是失去，是让冰雪长成你的模样。</p>
+    <p class="en" id="q-en">To let go is not to lose — it is to let the frost take your shape.</p>
+    <p class="by">— FROSTLIGHT</p>
+  </section>
+
+  <!-- Control panel: live source switching + pause + signal readout -->
+  <aside class="panel" id="panel">
+    <div class="panel-title">CONTROL</div>
+    <div class="src-grid">
+      <button id="c-demo" data-mode="demo">▶ 示例曲</button>
+      <button id="c-mic" data-mode="mic">🎙 麦克风</button>
+      <button id="c-file" data-mode="file">📁 音乐</button>
+      <button id="c-sys" data-mode="sys" hidden>🔊 系统</button>
+    </div>
+    <button id="c-pause" class="pause-btn" disabled>⏸ 暂停</button>
+    <div class="panel-title sig-title">QUEEN</div>
+    <div class="look-grid">
+      <button data-look="v2">❄ 睥睨</button>
+      <button data-look="v3">✦ 回眸</button>
+    </div>
+    <div class="panel-title sig-title">SIGNAL</div>
+    <div class="meter"><label>低频 BASS</label><div class="bar"><i id="m-bass"></i></div></div>
+    <div class="meter"><label>中频 MIDS</label><div class="bar"><i id="m-mid"></i></div></div>
+    <div class="meter"><label>高频 HIGHS</label><div class="bar"><i id="m-high"></i></div></div>
+    <div class="meter"><label>能量 ENERGY</label><div class="bar"><i id="m-energy"></i></div></div>
+  </aside>
+
+  <!-- How-it-works toggle -->
+  <button class="howto-btn" id="btn-howto">✦ 原理</button>
+
+  <!-- Explainer -->
+  <section class="howto" id="howto">
+    <div class="howto-inner">
+      <h2>🎵 1. 声音属性提取</h2>
+      <p class="lead">应用将音频信号拆分为四个核心维度（基于 FFT 快速傅里叶变换）：</p>
+      <div class="bands">
+        <div class="band"><b class="b-bass">低频 (Bass)</b><span>0–250Hz · 鼓点与基底 → 冰面裂纹、冰晶脉动。</span></div>
+        <div class="band"><b class="b-mid">中频 (Mids)</b><span>人声与主旋律 → 极光摆动、裙裾飞扬。</span></div>
+        <div class="band"><b class="b-high">高频 (Highs)</b><span>打击乐/铃声/空气感 → 雪花闪烁、冰晶绽放。</span></div>
+        <div class="band"><b class="b-energy">总体能量</b><span>宏观响度 → 霜冻蔓延、极光亮度、暖光解冻。</span></div>
+      </div>
+      <canvas id="spectrum" width="640" height="120"></canvas>
+      <p class="spectrum-cap">↑ 实时频谱 · 青=低频 紫=中频 白=高频</p>
+
+      <h2>✨ 2. 可视化映射关系</h2>
+      <p class="lead">物理公式将音频转化为情感化的动态。<em>拖动下方滑块</em>，背后的冰雪女王星夜会实时共鸣。</p>
+      <div class="sim">
+        <div class="sim-row">
+          <label>低频 BASS <i id="sv-bass">–</i></label>
+          <input type="range" id="sim-bass" min="0" max="100" value="0">
+          <span class="fx">效果：冰晶脉动、冰面裂纹扩张</span>
+        </div>
+        <div class="sim-row">
+          <label>中频 MIDS <i id="sv-mid">–</i></label>
+          <input type="range" id="sim-mid" min="0" max="100" value="0">
+          <span class="fx">效果：极光摆动、裙裾与发辫飞扬</span>
+        </div>
+        <div class="sim-row">
+          <label>高频 HIGHS <i id="sv-high">–</i></label>
+          <input type="range" id="sim-high" min="0" max="100" value="0">
+          <span class="fx">效果：雪花闪烁、冰晶绽放</span>
+        </div>
+        <div class="sim-row">
+          <label>能量 ENERGY <i id="sv-energy">–</i></label>
+          <input type="range" id="sim-energy" min="0" max="100" value="0">
+          <span class="fx">效果：霜冻蔓延、极光亮度、地平线暖光</span>
+        </div>
+        <button id="sim-off" class="sim-release">↩ 释放模拟，回到真实音频</button>
+      </div>
+      <div class="formulas">
+        <div class="f-title">代码背后的公式：</div>
+        <code>冰晶_缩放 = 1.0 + (Bass × 0.5)</code>
+        <code>极光_摆动 = sin(x) × (0.4 + Mid)</code>
+        <code>霜冻蔓延 / 极光亮度 ∝ Energy（慢积分）</code>
+        <code>冰晶绽放 ← High 瞬态跃升（+ 自发节奏兜底）</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- Start overlay -->
+  <div class="overlay" id="overlay">
+    <div class="card">
+      <h1>极夜将启</h1>
+      <p class="sub">Frostlight · 让声音点亮冰雪女王的星夜</p>
+      <div class="btns">
+        <button id="btn-demo" class="primary">▶ 播放示例曲</button>
+        <button id="btn-mic">🎙 麦克风</button>
+        <label class="filebtn">📁 我的音乐<input type="file" id="file" accept="audio/*" hidden></label>
+        <button id="btn-sys" hidden>🔊 系统声音</button>
+      </div>
+      <p class="hint">把音乐文件直接拖进页面也可以 · 想要那首《Let It Go》就点「我的音乐」放你自己的原声</p>
+    </div>
+  </div>
+
+</body>
+</html>
